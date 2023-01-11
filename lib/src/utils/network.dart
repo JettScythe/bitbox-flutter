@@ -5,6 +5,7 @@
 class Network {
   static const bchPrivate = 0x80;
   static const bchTestnetPrivate = 0xef;
+  static const bech32 = "bc";
 
   static const bchPublic = 0x00;
   static const bchTestnetPublic = 0x6f;

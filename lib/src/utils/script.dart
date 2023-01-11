@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
+
 import '../crypto/ecurve.dart';
 import '../utils/opcodes.dart';
 import 'pushdata.dart' as pushData;
@@ -84,13 +86,15 @@ List<dynamic> decompile(Uint8List buffer) {
   }
   return chunks;
 }
-/*Uint8List fromASM (String asm) {
+
+/* Uint8List fromASM (String asm) {
   return compile(asm.split(' ').map((chunkStr) {
     if (opcodes[chunkStr] != null) return opcodes[chunkStr];
     return HEX.decode(chunkStr);
   }).toList());
-}
-String toASM (List<dynamic> c) {
+} */
+
+String toASM(List<dynamic> c) {
   List<dynamic> chunks;
   if (c is Uint8List) {
     chunks = decompile(c);
@@ -107,7 +111,7 @@ String toASM (List<dynamic> c) {
     // opcode!
     return REVERSE_OPS[chunk];
   }).join(' ');
-}*/
+}
 
 int asMinimalOP(Uint8List buffer) {
   if (buffer.length == 0) return Opcodes.OP_0;

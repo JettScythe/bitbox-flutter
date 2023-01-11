@@ -1,10 +1,17 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dart_bech32/dart_bech32.dart';
+
+import 'utils/p2pkh.dart' as p2pkh;
+import 'utils/p2sh.dart' as p2sh;
+import 'utils/p2wpkh.dart' as p2wpkh;
+import 'utils/p2wsh.dart' as p2wsh;
 import 'utils/rest_api.dart';
 
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'utils/network.dart';
 import 'package:fixnum/fixnum.dart';
+import 'utils/script.dart' as bscript;
 
 /// Works with both legacy and cashAddr formats of the address
 ///
@@ -244,6 +251,34 @@ class Address {
     payload[0] = version;
     payload.setRange(1, payload.length, hash);
     return bs58check.encode(payload);
+  }
+
+  static toBech32(data, version, prefix) {
+    Uint8List words = bech32.toWords(data);
+    words.insert(0, version);
+    return bech32.encode(Decoded(prefix: prefix, words: words));
+  }
+
+  static String fromOutputScript(scriptPubKey, [Network network]) {
+    Network bchNet = network ?? Network.bitcoinCash();
+    if (p2pkh.isValidOutput(bscript.compile(scriptPubKey))) {
+      return toBase58Check(
+          bscript.compile(scriptPubKey).sublist(3, 23), bchNet.pubKeyHash);
+    }
+    if (p2sh.isValidOutput(bscript.compile(scriptPubKey))) {
+      return toBase58Check(
+          bscript.compile(scriptPubKey).sublist(2, 22), bchNet.scriptHash);
+    }
+    if (p2wpkh.isValidOutput(bscript.compile(scriptPubKey))) {
+      return toBech32(
+          bscript.compile(scriptPubKey).sublist(2, 22), 0, Network.bech32);
+    }
+    if (p2wsh.isValidOutput(bscript.compile(scriptPubKey))) {
+      return toBech32(
+          bscript.compile(scriptPubKey).sublist(2, 34), 0, Network.bech32);
+    }
+    throw new Exception(
+        "${bscript.toASM(scriptPubKey)} has no matching address");
   }
 
   /*
