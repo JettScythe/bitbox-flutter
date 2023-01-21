@@ -35,6 +35,7 @@ dependencies:
       ref: master
   protobuf: ^2.1.0
   dart_bech32: ^2.0.0
+  basic_utils: ^5.4.2
 
 dependency_overrides:
   crypto: ^3.0.0
